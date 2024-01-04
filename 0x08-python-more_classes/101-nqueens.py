@@ -20,7 +20,7 @@ def board_deepcopy(board):
 
 
 def get_solution(board):
-    """Return the list of lists representation of a solved chessboard."""
+    """Return the list of lists representation in a board."""
     solution = []
     for r in range(len(board)):
         for c in range(len(board)):
@@ -31,15 +31,7 @@ def get_solution(board):
 
 
 def xout(board, row, col):
-    """X out spots on a chessboard.
-
-    All spots where non-attacking queens can no
-    longer be played are X-ed out.
-
-    Args:
-        board (list): The current working chessboard.
-        row (int): The row where a queen was last played.
-        col (int): The column where a queen was last played.
+    """X spots on a chessboard.
     """
     # X out all forward spots
     for c in range(col + 1, len(board)):
