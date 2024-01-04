@@ -6,7 +6,6 @@ class Rectangle:
     """Rectangle class body"""
 
     def __init__(self, width=0, height=0):
-       """Initializes a Rectangle props in contructor."""
         self.width = width
         self.height = height
 
