@@ -7,7 +7,7 @@ import sys
 def init_board(n):
     """Initialize an `n`x`n`sized chessboard with 0's."""
     board = []
-    [board.append ([]) for i in range(n)]
+    [board.append([]) for i in range(n)]
     [row.append(' ') for i in range(n) for row in board]
     return (board)
 
@@ -30,7 +30,7 @@ def get_solution(board):
     return (solution)
 
 
-def xout (board, row, col):
+def xout(board, row, col):
     """X out spots on a chessboard.
     All spots where non-attacking queens can no longer
     be played are X-ed out.
@@ -39,7 +39,7 @@ def xout (board, row, col):
     row (int): The row where a queen was last played.
     col (int): The column where a queen was last played.
     """
-      # X out all forward spots
+    # X out all forward spots
     for c in range(col + 1, len(board)):
         board[row][c] = "x"
     # X out all backwards spots
