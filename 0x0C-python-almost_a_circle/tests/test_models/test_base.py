@@ -1,140 +1,131 @@
 #!/usr/bin/python3
-import unittest
-from models.base import Base
-from models.square import Square
+"""Defines Base class"""
 import json
-import inspect
-
-'''
-    Creating test cases for the base module
-'''
+import csv
+import turtle
 
 
-class test_base(unittest.TestCase):
-    '''
-        Testing base
-    '''
-    def test_id_none(self):
-        '''
-            Sending no id
-        '''
-        b = Base()
-        self.assertEqual(1, b.id)
-
-    def test_id(self):
-        '''
-            Sending a valid id
-        '''
-        b = Base(50)
-        self.assertEqual(50, b.id)
-
-    def test_id_zero(self):
-        '''
-            Sending an id 0
-        '''
-        b = Base(0)
-        self.assertEqual(0, b.id)
-
-    def test_id_negative(self):
-        '''
-            Sending a negative id
-        '''
-        b = Base(-20)
-        self.assertEqual(-20, b.id)
-
-    def test_id_string(self):
-        '''
-            Sending an id that is not an int
-        '''
-        b = Base("Betty")
-        self.assertEqual("Betty", b.id)
-
-    def test_id_list(self):
-        '''
-            Sending an id that is not an int
-        '''
-        b = Base([1, 2, 3])
-        self.assertEqual([1, 2, 3], b.id)
-
-    def test_id_dict(self):
-        '''
-            Sending an id that is not an int
-        '''
-        b = Base({"id": 109})
-        self.assertEqual({"id": 109}, b.id)
-
-    def test_id_tuple(self):
-        '''
-            Sending an id that is not an int
-        '''
-        b = Base((8,))
-        self.assertEqual((8,), b.id)
-
-    def test_to_json_type(self):
-        '''
-            Testing the json string
-        '''
-        sq = Square(1)
-        json_dict = sq.to_dictionary()
-        json_string = Base.to_json_string([json_dict])
-        self.assertEqual(type(json_string), str)
-
-    def test_to_json_value(self):
-        '''
-            Testing the json string
-        '''
-        sq = Square(1, 0, 0, 609)
-        json_dict = sq.to_dictionary()
-        json_string = Base.to_json_string([json_dict])
-        self.assertEqual(json.loads(json_string),
-                         [{"id": 609, "y": 0, "size": 1, "x": 0}])
-
-    def test_to_json_None(self):
-        '''
-            Testing the json string
-        '''
-        sq = Square(1, 0, 0, 609)
-        json_dict = sq.to_dictionary()
-        json_string = Base.to_json_string(None)
-        self.assertEqual(json_string, "[]")
-
-    def test_to_json_Empty(self):
-        '''
-            Testing the json string
-        '''
-        sq = Square(1, 0, 0, 609)
-        json_dict = sq.to_dictionary()
-        json_string = Base.to_json_string([])
-        self.assertEqual(json_string, "[]")
-
-
-class TestSquare(unittest.TestCase):
+class Base:
+    """Base class body.
     """
-    class for testing Base class' methods
-    """
+
+    __nb_objects = 0
+
+    def __init__(self, id=None):
+        """Initialize Id in a constructor
+        """
+        if id is not None:
+            self.id = id
+        else:
+            Base.__nb_objects += 1
+            self.id = Base.__nb_objects
+
+    @staticmethod
+    def to_json_string(list_dictionaries):
+        """ convert result to Json
+        """
+        if list_dictionaries is None or list_dictionaries == []:
+            return []
+        return json.dumps(list_dictionaries)
 
     @classmethod
-    def setUpClass(cls):
+    def save_to_file(cls, list_objs):
+        """Save list object to JSON
         """
-        Set up class method for the doc tests
-        """
-        cls.setup = inspect.getmembers(Base, inspect.isfunction)
+        filename = cls.__name__ + ".json"
+        with open(filename, "w") as jsonfile:
+            if list_objs is None:
+                jsonfile.write("[]")
+            else:
+                list_dicts = [o.to_dictionary() for o in list_objs]
+                jsonfile.write(Base.to_json_string(list_dicts))
 
-    def test_module_docstring(self):
+    @staticmethod
+    def from_json_string(json_string):
+        """Return the deserialization of a JSON string.
         """
-        Tests if module docstring documentation exist
-        """
-        self.assertTrue(len(Base.__doc__) >= 1)
+        if json_string is None or json_string == "[]":
+            return []
+        return json.loads(json_string)
 
-    def test_class_docstring(self):
+    @classmethod
+    def create(cls, **dictionary):
+        """Return a class instantiated from a dictionary of attributes.
         """
-        Tests if class docstring documentation exist
-        """
-        self.assertTrue(len(Base.__doc__) >= 1)
+        if dictionary and dictionary != {}:
+            if cls.__name__ == "Rectangle":
+                new = cls(1, 1)
+            else:
+                new = cls(1)
+            new.update(**dictionary)
+            return new
 
-    def test_func_docstrings(self):
+    @classmethod
+    def load_from_file(cls):
+        """Return a list of classes instantiated from a file of JSON  string.
         """
-        Tests if methods docstring documntation exist
+        filename = str(cls.__name__) + ".json"
+        try:
+            with open(filename, "r") as jsonfile:
+                list_dicts = Base.from_json_string(jsonfile.read())
+                return [cls.create(**d) for d in list_dicts]
+        except IOError:
+            return []
+
+    @classmethod
+    def save_to_file_csv(cls, list_objs):
+        """Write the CSV serialization of a list of objects to a file.
         """
-        for func in self.setup:
-            self.assertTrue(len(func[1].__doc__) >= 1)
+        filename = cls.__name__ + ".csv"
+        with open(filename, "w", newline="") as csvfile:
+            if list_objs is None or list_objs == []:
+                csvfile.write("[]")
+            else:
+                if cls.__name__ == "Rectangle":
+                    fieldnames = ["id", "width", "height", "x", "y"]
+                else:
+                    fieldnames = ["id", "size", "x", "y"]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                for obj in list_objs:
+                    writer.writerow(obj.to_dictionary())
+
+    @classmethod
+    def load_from_file_csv(cls):
+        """Return a list of class instantiated from a CSV file.
+        """
+        filename = cls.__name__ + ".csv"
+        try:
+            with open(filename, "r", newline="") as csvfile:
+                if cls.__name__ == "Rectangle":
+                    fieldnames = ["id", "width", "height", "x", "y"]
+                else:
+                    fieldnames = ["id", "size", "x", "y"]
+                list_dicts = csv.DictReader(csvfile, fieldnames=fieldnames)
+                list_dicts = [dict([k, int(v)] for k, v in d.items())
+                              for d in list_dicts]
+                return [cls.create(**d) for d in list_dicts]
+        except IOError:
+            return []
+
+    @staticmethod
+    def draw(cls, list_rectangles, list_squares):
+        """Draw Rectangles and Squares using the turtle module.
+        """
+        window = turtle.Screen()
+        pen = turtle.Pen()
+        figures = list_rectangles + list_squares
+
+        for fig in figures:
+            pen.up()
+            pen.goto(fig.x, fig.y)
+            pen.down()
+            pen.forward(fig.width)
+            pen.right(90)
+            pen.forward(fig.height)
+            pen.right(90)
+            pen.forward(fig.width)
+            pen.right(90)
+            pen.forward(fig.height)
+            pen.right(90)
+
+        window.exitonclick()
