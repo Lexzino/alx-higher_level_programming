@@ -1,5 +1,5 @@
-u#!/usr/bin/python3
-""" prints the first State object from the database """
+#!/usr/bin/python3
+""" List all the state objects using sqlalchemy """
 
 if __name__ == '__main__':
 
