@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Write a script that changes the name of a State object from the database """
+""" A script that changes the name of a State object from the database """
 
 if __name__ == '__main__':
 
