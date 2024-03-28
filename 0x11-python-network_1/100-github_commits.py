@@ -23,7 +23,6 @@ def main(argv):
         name = author.get('name')
         print('{}: {}'.format(sha, name))
 
-
     repo = argv[1]
     owner = argv[2]
     headers = {"Accept": "application/vnd.github.v3+json"}
