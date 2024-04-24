@@ -1,5 +1,4 @@
 #!/usr/bin/node
-
 const request = require('request');
 
 const episodeId = process.argv[2];
@@ -13,4 +12,4 @@ if (parseInt(episodeId) < 8) {
     }
     console.log(JSON.parse(body).title);
   });
-} 
+}  
